@@ -102,15 +102,62 @@ const db = getFirestore(app);
 // Product Data
 const semesters = {
   sem1: [
-    {name:"Exam Guess", price:"$10", img:"images/cprog.jpg"},
-    {name:"Notes", price:"$12", img:"images/intro.jpg"},
-    {name:"PYQ", price:"$15", img:"images/math.jpg"}
+    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
   ],
   sem2: [
-    {name:"Social Engineering", price:"$8", img:"images/english.jpg"},
-    {name:"Phishing", price:"$18", img:"images/lab.jpg"}
+    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
   ],
-  sem3: [], sem4: [], sem5: [], sem6: []
+  sem3: [
+    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ], 
+  sem4: [
+    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ], sem5: [
+    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }], sem6: [
+    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+    ]
 };
 
 let currentSem = "sem1";
