@@ -8,10 +8,11 @@
 body { font-family:sans-serif; background:#f4f6fc; margin:20px; }
 h1 { color:#2b3a67; }
 input { padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; width:250px; }
-button { padding:8px 14px; border:none; border-radius:6px; background:#2b3a67; color:white; cursor:pointer; }
+button { padding:6px 12px; border:none; border-radius:6px; background:#2b3a67; color:white; cursor:pointer; margin:2px; }
 button:hover { background:#1a2550; }
 #orders, #feedbacks { margin-top:20px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-height:400px; overflow:auto; }
-p { margin:5px 0; }
+p { margin:5px 0; display:flex; justify-content:space-between; align-items:center; }
+.actions button { margin-left:5px; }
 </style>
 </head>
 <body>
@@ -23,16 +24,19 @@ p { margin:5px 0; }
 
 <div id="adminContent" style="display:none;">
   <h2>Orders</h2>
+  <button onclick="printOrders()">📄 Print Orders</button>
   <div id="orders"></div>
 
   <h2>Feedback</h2>
+  <button onclick="printFeedback()">📄 Print Feedback</button>
   <div id="feedbacks"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBBV_jXIewP2OfcqYxtj2regQCicduc2fY",
   authDomain: "ount-32a16.firebaseapp.com",
@@ -56,25 +60,80 @@ window.checkAdmin = async function() {
   }
 }
 
+let ordersList = [];
+let feedbackList = [];
+
+// Load orders and feedback
 async function loadAdminData(){
   const ordersSnap = await getDocs(collection(db,"orders"));
-  const feedbackSnap = await getDocs(collection(db,"feedbacks"));
-
   const ordersDiv = document.getElementById("orders");
+  ordersList = [];
   ordersDiv.innerHTML = "";
-  ordersSnap.forEach(doc=>{
-    const data = doc.data();
+  ordersSnap.forEach(docSnap=>{
+    const data = docSnap.data();
+    const id = docSnap.id;
     const time = new Date(data.time.seconds*1000).toLocaleString();
-    ordersDiv.innerHTML += `<p>${time} - ${data.product} - ${data.name} - ${data.mobile}</p>`;
+    ordersList.push({id, time, ...data});
+    ordersDiv.innerHTML += `<p>${time} | ${data.product} | ${data.name} | ${data.mobile}
+      <span class="actions">
+        <button onclick="deleteOrder('${id}')">🗑 Delete</button>
+      </span></p>`;
   });
 
+  const feedbackSnap = await getDocs(collection(db,"feedbacks"));
   const feedbackDiv = document.getElementById("feedbacks");
+  feedbackList = [];
   feedbackDiv.innerHTML = "";
-  feedbackSnap.forEach(doc=>{
-    const data = doc.data();
+  feedbackSnap.forEach(docSnap=>{
+    const data = docSnap.data();
+    const id = docSnap.id;
     const time = new Date(data.time.seconds*1000).toLocaleString();
-    feedbackDiv.innerHTML += `<p>${time} - ${data.product} - ${data.feedback}</p>`;
+    feedbackList.push({id, time, ...data});
+    feedbackDiv.innerHTML += `<p>${time} | ${data.product} | ${data.feedback}
+      <span class="actions">
+        <button onclick="deleteFeedback('${id}')">🗑 Delete</button>
+      </span></p>`;
   });
+}
+
+// Delete order
+window.deleteOrder = async function(id){
+  if(confirm("Are you sure to delete this order?")){
+    await deleteDoc(doc(db,"orders",id));
+    await loadAdminData();
+  }
+}
+
+// Delete feedback
+window.deleteFeedback = async function(id){
+  if(confirm("Are you sure to delete this feedback?")){
+    await deleteDoc(doc(db,"feedbacks",id));
+    await loadAdminData();
+  }
+}
+
+// Print Orders
+window.printOrders = function(){
+  let content = "<h2>Orders</h2>";
+  ordersList.forEach(o=>{
+    content += `<p>${o.time} | ${o.product} | ${o.name} | ${o.mobile}</p>`;
+  });
+  const newWin = window.open("");
+  newWin.document.write("<html><head><title>Orders</title></head><body>"+content+"</body></html>");
+  newWin.document.close();
+  newWin.print();
+}
+
+// Print Feedback
+window.printFeedback = function(){
+  let content = "<h2>Feedback</h2>";
+  feedbackList.forEach(f=>{
+    content += `<p>${f.time} | ${f.product} | ${f.feedback}</p>`;
+  });
+  const newWin = window.open("");
+  newWin.document.write("<html><head><title>Feedback</title></head><body>"+content+"</body></html>");
+  newWin.document.close();
+  newWin.print();
 }
 </script>
 </body>
