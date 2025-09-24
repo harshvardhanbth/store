@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCA Store</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin:0; padding:0; background:#f9f9fb; color:#333; }
+    header { background:#2b3a67; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; }
+    header h1 { margin:0; font-size:1.5em; flex:1; }
+    nav select { padding:8px; border-radius:6px; border:none; font-size:1em; margin:5px; }
+    #searchBar { padding:8px; border-radius:6px; border:none; font-size:1em; margin:10px auto; width:100%; max-width:300px; display:block; }
+
+    /* Follow Us Dropdown */
+    .dropdown { position: relative; display:inline-block; }
+    .dropbtn { background:#ff9800; color:white; padding:10px 15px; font-size:1em; border:none; border-radius:6px; cursor:pointer; }
+    .dropdown-content { display:none; position:absolute; background:#fff; min-width:160px; box-shadow:0 8px 16px rgba(0,0,0,0.2); border-radius:6px; overflow:hidden; right:0; z-index:1; }
+    .dropdown-content a { color:#333; padding:10px 15px; text-decoration:none; display:block; }
+    .dropdown-content a:hover { background:#f1f1f1; }
+    .dropdown:hover .dropdown-content { display:block; }
+
+    .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:15px; padding:20px; }
+    .card { background:white; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); padding:10px; text-align:center; transition:transform 0.2s; }
+    .card:hover { transform:scale(1.02); }
+    .card img { width:100%; height:100px; object-fit:cover; border-radius:8px; }
+    .btn { display:inline-block; margin-top:8px; padding:8px 12px; background:#25D366; color:white; text-decoration:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.9em; }
+    .btn:hover { background:#1ebe5d; }
+
+    footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; }
+
+    /* Modal */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:999; }
+    .modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; }
+    .modal-content h3 { margin-top:0; }
+    .modal-content input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
+    .close { float:right; font-size:1.2em; cursor:pointer; }
+
+    /* Responsive Grid */
+    @media (max-width:768px) {
+      .container { grid-template-columns:repeat(3, 1fr); }
+      .card img { height:90px; }
+    }
+    @media (min-width:769px) and (max-width:1024px) {
+      .container { grid-template-columns:repeat(4, 1fr); }
+    }
+    @media (min-width:1025px) {
+      .container { grid-template-columns:repeat(5, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BCA Store</h1>
+    <nav>
+      <select id="semesterSelect">
+        <option value="sem1">Sem 1</option>
+        <option value="sem2">Sem 2</option>
+        <option value="sem3">Sem 3</option>
+        <option value="sem4">Sem 4</option>
+        <option value="sem5">Sem 5</option>
+        <option value="sem6">Sem 6</option>
+      </select>
+    </nav>
+    <div class="dropdown">
+      <button class="dropbtn">Follow Us</button>
+      <div class="dropdown-content">
+        <a href="https://facebook.com/mjkbca" target="_blank">Facebook</a>
+        <a href="https://instagram.com/mjkbca" target="_blank">Instagram</a>
+        <a href="https://youtube.com/mjkbca" target="_blank">YouTube</a>
+        <a href="https://t.me/mjkbca" target="_blank">Telegram</a>
+      </div>
+    </div>
+  </header>
+
+  <input type="text" id="searchBar" placeholder="Search products...">
+
+  <div id="productContainer" class="container"></div>
+
+  <!-- Modal -->
+  <div id="formModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Enter Your Details</h3>
+      <input type="text" id="custName" placeholder="Your Name">
+      <input type="email" id="custEmail" placeholder="Your Email">
+      <input type="tel" id="custMobile" placeholder="Your Mobile">
+      <button class="btn" onclick="sendToWhatsApp()">Submit</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>mjkbca</p>
+  </footer>
+
+ <script>
+const semesters = {
+  sem1: [
+    { name: "C Programming Basics", price: "$10", img: "images/cprog.jpg" },
+    { name: "Introduction to Computers", price: "$12", img: "images/intro.jpg" },
+    { name: "Mathematics for CS", price: "$15", img: "images/math.jpg" },
+    { name: "Digital Logic", price: "$14", img: "images/digital.jpg" },
+    { name: "IT Fundamentals", price: "$9", img: "images/it.jpg" },
+    { name: "English Communication", price: "$8", img: "images/english.jpg" },
+    { name: "Programming Lab", price: "$18", img: "images/lab.jpg" },
+    { name: "Problem Solving", price: "$20", img: "images/problem.jpg" },
+    { name: "Computer Basics", price: "$11", img: "images/basics.jpg" },
+    { name: "Office Tools", price: "$13", img: "images/office.jpg" }
+  ],
+  sem2: [
+    { name: "Data Structures", price: "$15", img: "images/ds.jpg" },
+    { name: "Database Systems", price: "$18", img: "images/dbms.jpg" },
+    { name: "Operating System", price: "$20", img: "images/os.jpg" },
+    { name: "Discrete Mathematics", price: "$14", img: "images/discrete.jpg" },
+    { name: "Object Oriented Programming", price: "$22", img: "images/oop.jpg" },
+    { name: "Unix Shell", price: "$12", img: "images/unix.jpg" },
+    { name: "Software Tools", price: "$10", img: "images/tools.jpg" },
+    { name: "Computer Organization", price: "$19", img: "images/coa.jpg" },
+    { name: "Mini Project", price: "$25", img: "images/project.jpg" },
+    { name: "Data Lab", price: "$16", img: "images/datalab.jpg" }
+  ],
+  sem3: [
+    { name: "Networking Basics", price: "$17", img: "images/network.jpg" },
+    { name: "Web Development", price: "$20", img: "images/web.jpg" },
+    { name: "Java Programming", price: "$22", img: "images/java.jpg" },
+    { name: "Computer Graphics", price: "$18", img: "images/graphics.jpg" },
+    { name: "Mathematical Foundation", price: "$16", img: "images/foundation.jpg" },
+    { name: "Data Mining", price: "$24", img: "images/mining.jpg" },
+    { name: "Software Engineering", price: "$19", img: "images/se.jpg" },
+    { name: "System Software", price: "$21", img: "images/system.jpg" },
+    { name: "Theory of Computation", price: "$23", img: "images/toc.jpg" },
+    { name: "Cloud Fundamentals", price: "$26", img: "images/cloud.jpg" }
+  ],
+  sem4: [
+    { name: "Advanced Java", price: "$25", img: "images/advjava.jpg" },
+    { name: "Compiler Design", price: "$27", img: "images/compiler.jpg" },
+    { name: "Python Programming", price: "$20", img: "images/python.jpg" },
+    { name: "AI Basics", price: "$28", img: "images/ai.jpg" },
+    { name: "Operating Systems Lab", price: "$18", img: "images/oslab.jpg" },
+    { name: "RDBMS Lab", price: "$19", img: "images/rdbmslab.jpg" },
+    { name: "Data Visualization", price: "$22", img: "images/datavis.jpg" },
+    { name: "Machine Learning", price: "$30", img: "images/ml.jpg" },
+    { name: "Mobile Computing", price: "$21", img: "images/mobile.jpg" },
+    { name: "Mini Project 2", price: "$32", img: "images/project2.jpg" }
+  ],
+  sem5: [
+    { name: "Cyber Security", price: "$28", img: "images/cyber.jpg" },
+    { name: "Big Data Analytics", price: "$35", img: "images/bigdata.jpg" },
+    { name: "Internet of Things", price: "$30", img: "images/iot.jpg" },
+    { name: "Data Science", price: "$33", img: "images/datasci.jpg" },
+    { name: "Natural Language Processing", price: "$37", img: "images/nlp.jpg" },
+    { name: "Mobile App Dev", price: "$32", img: "images/app.jpg" },
+    { name: "Cloud Applications", price: "$36", img: "images/cloudapp.jpg" },
+    { name: "Advanced Python", price: "$29", img: "images/advpython.jpg" },
+    { name: "BlockChain Basics", price: "$40", img: "images/blockchain.jpg" },
+    { name: "Security Lab", price: "$31", img: "images/securitylab.jpg" }
+  ],
+  sem6: [
+    { name: "Project Work", price: "$50", img: "images/projectwork.jpg" },
+    { name: "Entrepreneurship", price: "$27", img: "images/entre.jpg" },
+    { name: "Management Info Systems", price: "$29", img: "images/mis.jpg" },
+    { name: "Human Computer Interaction", price: "$28", img: "images/hci.jpg" },
+    { name: "Ethical Hacking", price: "$34", img: "images/hacking.jpg" },
+    { name: "Robotics", price: "$38", img: "images/robotics.jpg" },
+    { name: "AI Advanced", price: "$35", img: "images/aia.jpg" },
+    { name: "Research Methods", price: "$22", img: "images/research.jpg" },
+    { name: "Final Viva", price: "$20", img: "images/viva.jpg" },
+    { name: "Internship", price: "$45", img: "images/internship.jpg" }
+  ]
+};
+
+
+    let currentSem = 'sem1';
+    let selectedProduct = '';
+
+    const productContainer = document.getElementById('productContainer');
+    const semesterSelect = document.getElementById('semesterSelect');
+    const searchBar = document.getElementById('searchBar');
+
+    function displayProducts(sem){
+      productContainer.innerHTML = '';
+      semesters[sem].forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<img src='https://via.placeholder.com/150'>
+                         <h4>${p.name}</h4>
+                         <p>${p.price}</p>
+                         <button class='btn' onclick="openModal('${p.name}', '${p.price}')">Buy</button>`;
+        productContainer.appendChild(div);
+      });
+    }
+
+    semesterSelect.addEventListener('change', e=>{
+      currentSem = e.target.value;
+      displayProducts(currentSem);
+    });
+
+    searchBar.addEventListener('keyup', ()=>{
+      const query = searchBar.value.toLowerCase();
+      productContainer.innerHTML = '';
+      semesters[currentSem].filter(p=>p.name.toLowerCase().includes(query)).forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<img src='https://via.placeholder.com/150'>
+                         <h4>${p.name}</h4>
+                         <p>${p.price}</p>
+                         <button class='btn' onclick="openModal('${p.name}', '${p.price}')">Buy</button>`;
+        productContainer.appendChild(div);
+      });
+    });
+
+    function openModal(name, price){
+      selectedProduct = `${name} - ${price}`;
+      document.getElementById('formModal').style.display = 'flex';
+    }
+
+    function closeModal(){
+      document.getElementById('formModal').style.display = 'none';
+    }
+
+    function sendToWhatsApp(){
+      const name = document.getElementById('custName').value;
+      const email = document.getElementById('custEmail').value;
+      const mobile = document.getElementById('custMobile').value;
+      const msg = `New Order from BCA Store%0AProduct: ${selectedProduct}%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}`;
+      window.open(`https://wa.me/91XXXXXXXXXX?text=${msg}`, '_blank');
+      closeModal();
+    }
+
+    displayProducts(currentSem);
+  </script>
+</body>
+</html>
