@@ -36,9 +36,9 @@ footer a {margin:0 8px; color:#00ffcc; cursor:pointer; text-decoration:underline
 
 <header>
   <h1>BCA Store</h1>
-  <div id="banner">🔥 Big Sale Today – Flat 50% Off! 🔥</div>
+  <div id="banner">🔥 First 100 user get free pyq,notes linux 🔥</div>
   <div id="visitorCount">Visitors: 0</div>
-  <div id="buyCount">Total Buys: 0</div>
+  <div id="buyCount">Total Buyer: 0</div>
 </header>
 
 <nav>
@@ -73,7 +73,7 @@ footer a {margin:0 8px; color:#00ffcc; cursor:pointer; text-decoration:underline
 <footer>
   <a onclick="alert('Feedback editable in code.')">Feedback</a> |
   <a onclick="alert('Terms & Conditions editable in code.')">Terms & Conditions</a> |
-  <a onclick="alert('Contact: mjkbca@example.com | 9986003559')">Contact Us</a>
+  <a onclick="alert('Contact: shubhamkeshari232@gmail.com | 8956003559')">Contact Us</a>
   <p>mjkbca © 2025</p>
 </footer>
 
@@ -98,9 +98,65 @@ const db = getFirestore(app);
 
 // ------------------- Product Data -------------------
 const semesters = {
-  sem1:[{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"}],
-  sem2:[{name:"Social Engineering",price:"$8",img:"images/english.jpg"},{name:"Phishing",price:"$18",img:"images/lab.jpg"}],
-  sem3:[], sem4:[], sem5:[], sem6:[]
+  sem1: [
+    { name: "Exam Guess 1", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes 1", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ 1", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code 1",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ],
+  sem2: [
+    { name: "Exam Guess 2", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes 2", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ 2", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code 2",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ],
+  sem3: [
+    { name: "Exam Guess 3", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes 3", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ 3", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code 3",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ], 
+  sem4: [
+    { name: "Exam Guess 4", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes 4", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ 4", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code 4",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ], sem5: [
+    { name: "Exam Guess 5", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes 5", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ 5", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code 5",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+  ], 
+  sem6: [
+    { name: "Exam Guess 6", price: "$10", img: "images/cprog.jpg" },
+    { name: "Notes 6", price: "$12", img: "images/intro.jpg" },
+    { name: "PYQ 6", price: "$15", img: "images/math.jpg" },
+    { name: "Source Code 6",  price: "$14", img: "images/digital.jpg" },
+    { name: "Ethicial HackingBasic", price: "$9", img: "images/it.jpg" },
+    { name: "Social Engineering ", price: "$8", img: "images/english.jpg" },
+    { name: "Phishing", price: "$18", img: "images/lab.jpg" },
+    { name: "Linux", price: "$20", img: "images/problem.jpg" }
+    ]
 };
 
 // ------------------- DOM Elements -------------------
