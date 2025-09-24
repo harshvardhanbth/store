@@ -5,19 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel - BCA Store</title>
 <style>
-body {font-family:monospace; margin:0; padding:0; background:#0f111a; color:#cfd8dc;}
-header {background:#1f2233; padding:15px; text-align:center; color:#00ffcc;}
+body {font-family: monospace; margin:0; padding:0; background:#0f111a; color:#cfd8dc;}
+header {background:#1f2233; padding:20px; text-align:center; color:#00ffcc;}
 h1,h2{margin:0;}
 .container{padding:20px;}
 table{width:100%; border-collapse:collapse; margin:15px 0;}
 th,td{border:1px solid #22253b; padding:8px; text-align:left;}
 th{background:#22253b;color:#00ffcc;}
 tr:nth-child(even){background:#1a1c2b;}
-.btn{background:#00ffcc;color:#0f111a;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;}
+.btn{background:#00ffcc;color:#0f111a;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px;}
 .btn:hover{background:#00d6b2;}
 select{padding:5px;border-radius:6px;border:none;background:#22253b;color:#cfd8dc;}
 input[type=password]{padding:10px;border-radius:6px;border:none;margin-top:15px;width:100%;max-width:250px;}
 #loginSection{text-align:center;margin-top:100px;}
+.stats{margin-top:10px;font-weight:bold;}
 </style>
 </head>
 <body>
@@ -31,18 +32,23 @@ input[type=password]{padding:10px;border-radius:6px;border:none;margin-top:15px;
 <div id="adminPanel" style="display:none;">
 <header>
 <h1>Admin Panel - BCA Store</h1>
-<p id="stats"></p>
+<p class="stats" id="stats">Loading stats...</p>
 </header>
+
 <div class="container">
 <h2>Orders</h2>
 <table id="ordersTable">
-<thead><tr><th>Order ID</th><th>Product</th><th>Name</th><th>Email</th><th>Mobile</th><th>Status</th><th>Update</th></tr></thead>
+<thead>
+<tr><th>Order ID</th><th>Product</th><th>Name</th><th>Email</th><th>Mobile</th><th>Status</th><th>Actions</th></tr>
+</thead>
 <tbody></tbody>
 </table>
 
 <h2>Feedbacks</h2>
 <table id="feedbackTable">
-<thead><tr><th>Order ID</th><th>Product</th><th>Feedback</th><th>Date</th></tr></thead>
+<thead>
+<tr><th>Order ID</th><th>Product</th><th>Feedback</th><th>Date</th><th>Actions</th></tr>
+</thead>
 <tbody></tbody>
 </table>
 
@@ -52,86 +58,124 @@ input[type=password]{padding:10px;border-radius:6px;border:none;margin-top:15px;
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyBBV_jXIewP2OfcqYxtj2regQCicduc2fY",
-authDomain: "ount-32a16.firebaseapp.com",
-projectId: "ount-32a16",
-storageBucket: "ount-32a16.firebasestorage.app",
-messagingSenderId: "865150215832",
-appId: "1:865150215832:web:d6ab92c351584c71aa12ed"
+  apiKey: "AIzaSyBBV_jXIewP2OfcqYxtj2regQCicduc2fY",
+  authDomain: "ount-32a16.firebaseapp.com",
+  projectId: "ount-32a16",
+  storageBucket: "ount-32a16.firebasestorage.app",
+  messagingSenderId: "865150215832",
+  appId: "1:865150215832:web:d6ab92c351584c71aa12ed"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const adminPassword="Harsh@123";
+const adminPassword = "Harsh@123";
 
-function showPanel(){
-document.getElementById("loginSection").style.display="none";
-document.getElementById("adminPanel").style.display="block";
-loadAdminData();
+// --- Login ---
+window.checkLogin = function(){
+  const pass = document.getElementById("adminPass").value;
+  if(pass === adminPassword){
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    loadAdminData();
+  }else{
+    alert("Incorrect Password!");
+  }
 }
 
-window.checkLogin=function(){
-const pass=document.getElementById("adminPass").value;
-if(pass===adminPassword) showPanel();
-else alert("Incorrect Password!");
-}
-
+// --- Load Orders, Feedbacks, Stats ---
 async function loadAdminData(){
-const buyCountRef=doc(db,"storeInfo","buyCount");
-const visitorRef=doc(db,"storeInfo","visitorCount");
-onSnapshot(buyCountRef, snap=>{
-  document.getElementById("stats").textContent=`Total Buys: ${snap.data().total} | Visitors: ...`;
-});
+  const buyCountRef = doc(db,"storeInfo","buyCount");
+  const visitorRef = doc(db,"storeInfo","visitorCount");
 
-const ordersCol=collection(db,"orders");
-const ordersSnap=await getDocs(ordersCol);
-const ordersTbody=document.querySelector("#ordersTable tbody");
-ordersTbody.innerHTML="";
-ordersSnap.forEach(d=>{
-const data=d.data();
-const row=document.createElement("tr");
-row.innerHTML=`<td>${data.orderId}</td><td>${data.product}</td><td>${data.name}</td><td>${data.email}</td><td>${data.mobile}</td>
-<td><select id="status_${d.id}">
-<option value="Order Placed"${data.status==="Order Placed"?" selected":""}>Order Placed</option>
-<option value="Order Confirmed"${data.status==="Order Confirmed"?" selected":""}>Order Confirmed</option>
-<option value="Order Processing"${data.status==="Order Processing"?" selected":""}>Order Processing</option>
-<option value="Delivered"${data.status==="Delivered"?" selected":""}>Delivered</option>
-</select></td>
-<td><button class="btn" onclick="updateStatus('${d.id}')">Update</button>
-<button class="btn" onclick="deleteOrder('${d.id}')">Delete</button></td>`;
-ordersTbody.appendChild(row);
-});
+  // Live stats
+  onSnapshot(buyCountRef, snap=>updateStats());
+  onSnapshot(visitorRef, snap=>updateStats());
 
-const feedbackSnap=await getDocs(collection(db,"feedbacks"));
-const feedbackTbody=document.querySelector("#feedbackTable tbody");
-feedbackTbody.innerHTML="";
-feedbackSnap.forEach(d=>{
-const data=d.data();
-const date=data.time?.toDate()?.toLocaleString()||"";
-const row=document.createElement("tr");
-row.innerHTML=`<td>${data.orderId}</td><td>${data.product}</td><td>${data.feedback}</td><td>${date}</td>
-<td><button class="btn" onclick="deleteFeedback('${d.id}')">Delete</button></td>`;
-feedbackTbody.appendChild(row);
-});
+  function updateStats(){
+    buyCountRef.get().then(bsnap=>{
+      visitorRef.get().then(vsnap=>{
+        document.getElementById("stats").textContent = `Total Buys: ${bsnap.data()?.total||0} | Visitors: ${vsnap.data()?.total||0}`;
+      });
+    });
+  }
+
+  // Orders Table
+  const ordersCol = collection(db,"orders");
+  onSnapshot(ordersCol, snap=>{
+    const ordersTbody = document.querySelector("#ordersTable tbody");
+    ordersTbody.innerHTML = "";
+    snap.forEach(d=>{
+      const data = d.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.orderId}</td>
+        <td>${data.product}</td>
+        <td>${data.name}</td>
+        <td>${data.email}</td>
+        <td>${data.mobile}</td>
+        <td>
+          <select id="status_${d.id}">
+            <option value="Order Placed"${data.status==="Order Placed"?" selected":""}>Order Placed</option>
+            <option value="Order Confirmed"${data.status==="Order Confirmed"?" selected":""}>Order Confirmed</option>
+            <option value="Order Processing"${data.status==="Order Processing"?" selected":""}>Order Processing</option>
+            <option value="Delivered"${data.status==="Delivered"?" selected":""}>Delivered</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn" onclick="updateStatus('${d.id}')">Update</button>
+          <button class="btn" onclick="deleteOrder('${d.id}')">Delete</button>
+        </td>
+      `;
+      ordersTbody.appendChild(row);
+    });
+  });
+
+  // Feedback Table
+  const feedbackCol = collection(db,"feedbacks");
+  onSnapshot(feedbackCol, snap=>{
+    const feedbackTbody = document.querySelector("#feedbackTable tbody");
+    feedbackTbody.innerHTML = "";
+    snap.forEach(d=>{
+      const data = d.data();
+      const date = data.time?.toDate()?.toLocaleString()||"";
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.orderId}</td>
+        <td>${data.product}</td>
+        <td>${data.feedback}</td>
+        <td>${date}</td>
+        <td>
+          <button class="btn" onclick="deleteFeedback('${d.id}')">Delete</button>
+        </td>
+      `;
+      feedbackTbody.appendChild(row);
+    });
+  });
 }
 
-window.updateStatus=async function(id){
-const sel=document.getElementById("status_"+id);
-await updateDoc(doc(db,"orders",id),{status:sel.value});
-alert("Order Status Updated!");
+// --- Admin Actions ---
+window.updateStatus = async function(id){
+  const sel = document.getElementById("status_"+id);
+  await updateDoc(doc(db,"orders",id),{status: sel.value});
+  alert("Order Status Updated!");
 }
 
-window.deleteOrder=async function(id){ if(confirm("Delete order?")){ await deleteDoc(doc(db,"orders",id)); loadAdminData(); } }
-window.deleteFeedback=async function(id){ if(confirm("Delete feedback?")){ await deleteDoc(doc(db,"feedbacks",id)); loadAdminData(); } }
+window.deleteOrder = async function(id){
+  if(confirm("Delete this order?")) await deleteDoc(doc(db,"orders",id));
+}
+window.deleteFeedback = async function(id){
+  if(confirm("Delete this feedback?")) await deleteDoc(doc(db,"feedbacks",id));
+}
 
-window.exportPDF=function(){
-let html="<h2>BCA Store Orders & Feedbacks</h2>";
-html+="<h3>Orders</h3>"+document.getElementById("ordersTable").outerHTML;
-html+="<h3>Feedbacks</h3>"+document.getElementById("feedbackTable").outerHTML;
-const w=window.open("","Print"); w.document.write(html); w.document.close(); w.print();
+// --- Export PDF ---
+window.exportPDF = function(){
+  let html="<h2>BCA Store Orders & Feedbacks</h2>";
+  html+="<h3>Orders</h3>"+document.getElementById("ordersTable").outerHTML;
+  html+="<h3>Feedbacks</h3>"+document.getElementById("feedbackTable").outerHTML;
+  const w=window.open("","Print"); w.document.write(html); w.document.close(); w.print();
 }
 </script>
 </body>
