@@ -6,46 +6,30 @@
 <title>BCA Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* === General === */
 body { font-family:'Fira Code', monospace; margin:0; padding:0; background:#0f111a; color:#cfd8dc; }
-header { background:#1f2233; padding:20px; text-align:center; position:relative; }
-header h1 { margin:0; font-size:2em; color:#00ffcc; letter-spacing:1px; }
-#banner { background:linear-gradient(90deg,#ff5722,#ff9800); color:#fff; text-align:center; padding:12px; font-weight:bold; margin-top:10px; border-radius:8px; }
-#visitorCount { position:absolute; top:20px; right:20px; background:rgba(0,255,204,0.1); padding:6px 12px; border-radius:6px; font-size:0.9em; color:#00ffcc; }
-
-/* === Nav === */
+header { background:#1f2233; padding:20px; text-align:center; }
+header h1 { color:#00ffcc; }
+#banner { background:linear-gradient(90deg,#ff5722,#ff9800); color:#fff; padding:12px; font-weight:bold; border-radius:8px; margin-top:10px; }
+#visitorCount { position:absolute; top:20px; right:20px; color:#00ffcc; background:rgba(0,255,204,0.1); padding:6px 12px; border-radius:6px; }
 nav { display:flex; justify-content:center; padding:15px; background:#111426; }
 nav select { padding:8px 12px; border-radius:6px; border:none; background:#22253b; color:#cfd8dc; font-size:1em; }
-
-/* === Search === */
-#searchBar { display:block; margin:15px auto; width:90%; max-width:350px; padding:10px; border-radius:6px; border:none; font-size:1em; background:#22253b; color:#cfd8dc; }
-
-/* === Product Grid === */
+#searchBar { display:block; margin:15px auto; width:90%; max-width:350px; padding:10px; border-radius:6px; border:none; background:#22253b; color:#cfd8dc; }
 .container { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:18px; padding:20px; }
 .card { background:#1a1c2b; border-radius:12px; padding:12px; text-align:center; transition:all 0.3s; box-shadow:0 4px 10px rgba(0,255,204,0.2); }
 .card:hover { transform:translateY(-5px) scale(1.03); }
 .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
-.card h4 { color:#00ffcc; margin:10px 0 5px; font-size:1em; }
-.card p { color:#fff; margin:0 0 10px; font-size:0.9em; }
-.btn { background:#00ffcc; color:#0f111a; padding:8px 14px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.9em; transition:all 0.2s; }
+.card h4 { color:#00ffcc; margin:10px 0 5px; }
+.card p { margin:0 0 10px; color:#fff; font-size:0.9em; }
+.btn { background:#00ffcc; color:#0f111a; padding:8px 14px; border:none; border-radius:6px; cursor:pointer; }
 .btn:hover { background:#00d6b2; }
-
-/* === Buy Count === */
-#buyCount { text-align:center; font-weight:bold; margin:10px 0; font-size:1.05em; color:#00ffcc; }
-
-/* === Footer === */
-footer { text-align:center; padding:15px; background:#111426; margin-top:20px; font-size:0.9em; color:#cfd8dc; }
-footer a { margin:0 8px; cursor:pointer; color:#00ffcc; text-decoration:underline; }
-
-/* === Modal === */
+#buyCount { text-align:center; margin:10px 0; font-weight:bold; color:#00ffcc; }
+footer { text-align:center; padding:15px; background:#111426; font-size:0.9em; color:#cfd8dc; }
+footer a { margin:0 8px; color:#00ffcc; cursor:pointer; text-decoration:underline; }
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:999; }
 .modal-content { background:#1a1c2b; color:#cfd8dc; padding:20px; border-radius:12px; width:90%; max-width:450px; max-height:80%; overflow:auto; }
 .modal-content h3 { margin-top:0; color:#00ffcc; }
-.modal-content input, .modal-content textarea { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:none; background:#22253b; color:#cfd8dc; }
+.modal-content input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:none; background:#22253b; color:#cfd8dc; }
 .close { float:right; font-size:1.2em; cursor:pointer; }
-
-/* === Responsive === */
-@media (max-width:600px){ .card img { height:100px; } header h1 { font-size:1.6em; } #banner { font-size:1em; } }
 </style>
 </head>
 <body>
@@ -83,19 +67,10 @@ footer a { margin:0 8px; cursor:pointer; color:#00ffcc; text-decoration:underlin
   </div>
 </div>
 
-<!-- Footer Info Modal -->
-<div id="infoModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeInfoModal()">&times;</span>
-    <h3 id="infoTitle"></h3>
-    <div id="infoContent"></div>
-  </div>
-</div>
-
 <footer>
-  <a onclick="openInfo('Feedback','Feedback can be given after purchase. Editable in code.')">Feedback</a> |
-  <a onclick="openInfo('Terms & Conditions','Terms & Conditions editable in code.')">Terms & Conditions</a> |
-  <a onclick="openInfo('Contact Us','Email: mjkbca@example.com | Phone: 9986003559')">Contact Us</a>
+  <a onclick="alert('Feedback editable in code and given after purchase.')">Feedback</a> |
+  <a onclick="alert('Terms & Conditions editable in code.')">Terms & Conditions</a> |
+  <a onclick="alert('Contact: mjkbca@example.com | 9986003559')">Contact Us</a>
   <p>mjkbca © 2025</p>
 </footer>
 
@@ -103,7 +78,6 @@ footer a { margin:0 8px; cursor:pointer; color:#00ffcc; text-decoration:underlin
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBBV_jXIewP2OfcqYxtj2regQCicduc2fY",
   authDomain: "ount-32a16.firebaseapp.com",
@@ -115,33 +89,21 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Product Data
-const semesters = {
-  sem1: [
-    {name:"Exam Guess", price:"$10", img:"images/cprog.jpg"},
-    {name:"Notes", price:"$12", img:"images/intro.jpg"},
-    {name:"PYQ", price:"$15", img:"images/math.jpg"}
-  ],
-  sem2: [
-    {name:"Social Engineering", price:"$8", img:"images/english.jpg"},
-    {name:"Phishing", price:"$18", img:"images/lab.jpg"}
-  ],
-  sem3: [], sem4: [], sem5: [], sem6: []
-};
-
-let currentSem = "sem1";
-let selectedProduct = "";
-
+let currentSem="sem1", selectedProduct="";
 const productContainer = document.getElementById("productContainer");
 const semesterSelect = document.getElementById("semesterSelect");
 const searchBar = document.getElementById("searchBar");
 const buyCountEl = document.getElementById("buyCount");
 const visitorCountEl = document.getElementById("visitorCount");
-
 const buyCountRef = doc(db,"storeInfo","buyCount");
 const visitorRef = doc(db,"storeInfo","visitorCount");
 
-// Initialize visitor & buy count
+const semesters = {
+  sem1:[{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"}],
+  sem2:[{name:"Social Engineering",price:"$8",img:"images/english.jpg"},{name:"Phishing",price:"$18",img:"images/lab.jpg"}],
+  sem3:[],sem4:[],sem5:[],sem6:[]
+};
+
 async function initCounts(){
   // Visitor
   const visitorSnap = await getDoc(visitorRef);
@@ -156,7 +118,6 @@ async function initCounts(){
   else{ await setDoc(buyCountRef,{total:0}); buyCountEl.textContent = "Total Buys: 0"; }
 }
 
-// Display products
 function displayProducts(sem){
   productContainer.innerHTML="";
   semesters[sem].forEach(p=>{
@@ -168,7 +129,6 @@ function displayProducts(sem){
   });
 }
 
-// Events
 semesterSelect.addEventListener("change", e=>{ currentSem=e.target.value; displayProducts(currentSem); });
 searchBar.addEventListener("keyup", ()=>{
   const query=searchBar.value.toLowerCase();
@@ -182,53 +142,29 @@ searchBar.addEventListener("keyup", ()=>{
   });
 });
 
-// Modal functions
 window.openModal=function(name,price){ selectedProduct=name+" - "+price; document.getElementById("formModal").style.display="flex"; }
 window.closeModal=function(){ document.getElementById("formModal").style.display="none"; }
-window.openInfo=function(title,content){ document.getElementById("infoTitle").textContent=title; document.getElementById("infoContent").innerHTML=content; document.getElementById("infoModal").style.display="flex"; }
-window.closeInfoModal=function(){ document.getElementById("infoModal").style.display="none"; }
 
-// Place Order
 window.placeOrder=async function(){
   const name=document.getElementById("custName").value;
   const email=document.getElementById("custEmail").value;
   const mobile=document.getElementById("custMobile").value;
-  if(!name || !mobile){ alert("Name & Mobile required"); return; }
-
+  if(!name||!mobile){ alert("Name & Mobile required"); return; }
   const msg=`New Order from BCA Store%0AProduct: ${selectedProduct}%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}`;
   window.open(`https://wa.me/918986003559?text=${msg}`,'_blank');
-
-  // Update buy count
   await updateDoc(buyCountRef,{total:increment(1)});
   const buySnap = await getDoc(buyCountRef);
   buyCountEl.textContent="Total Buys: "+buySnap.data().total;
-
-  // Store order in Firebase
-  await addDoc(collection(db,"orders"),{
-    product: selectedProduct,
-    name, email, mobile,
-    time: serverTimestamp()
-  });
-
+  await addDoc(collection(db,"orders"),{product:selectedProduct,name,email,mobile,time:serverTimestamp()});
   closeModal();
 
-  // After buy: ask feedback
-  setTimeout(()=>{ openFeedbackModal(); }, 1500);
+  // Feedback after buy
+  setTimeout(()=>{ 
+    const feedback = prompt("Please give feedback for your purchase:");
+    if(feedback){ addDoc(collection(db,"feedbacks"),{product:selectedProduct,feedback,time:serverTimestamp()}); }
+  },1000);
 }
 
-// Feedback Modal Prompt
-function openFeedbackModal(){
-  const feedbackText = prompt("Please give feedback for your purchase:");
-  if(feedbackText){
-    addDoc(collection(db,"feedbacks"),{
-      product: selectedProduct,
-      feedback: feedbackText,
-      time: serverTimestamp()
-    });
-  }
-}
-
-// Initial load
 initCounts();
 displayProducts(currentSem);
 </script>
