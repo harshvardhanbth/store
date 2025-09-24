@@ -11,16 +11,37 @@ header {background:#1f2233; padding:20px; text-align:center; color:#00ffcc;}
 h1,h2,h3{margin:0;}
 .container{padding:20px;}
 table{width:100%; border-collapse:collapse; margin:15px 0;}
-th,td{border:1px solid #22253b; padding:10px; text-align:left;}
+th,td{border:1px solid #22253b; padding:10px; text-align:left; font-size:0.9em;}
 th{background:#22253b;color:#00ffcc;}
 tr:nth-child(even){background:#1a1c2b;}
-.btn{background:#00ffcc;color:#0f111a;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px;transition:0.2s;}
+.btn{background:#00ffcc;color:#0f111a;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px;transition:0.2s;font-size:0.9em;}
 .btn:hover{background:#00d6b2;}
-select{padding:5px;border-radius:6px;border:none;background:#22253b;color:#cfd8dc;}
-input[type=password]{padding:10px;border-radius:6px;border:none;margin-top:15px;width:100%;max-width:250px;}
-#loginSection{text-align:center;margin-top:100px;}
-.stats{margin-top:10px;font-weight:bold;}
-.sectionTitle{margin-top:25px; margin-bottom:10px; color:#00ffcc; font-size:1.2em;}
+select{padding:5px;border-radius:6px;border:none;background:#22253b;color:#cfd8dc;font-size:0.9em;}
+input[type=password]{padding:10px;border-radius:6px;border:none;margin-top:15px;width:100%;max-width:250px;font-size:0.9em;}
+#loginSection{text-align:center;margin-top:50px;}
+.stats{margin-top:10px;font-weight:bold;font-size:0.95em;}
+.sectionTitle{margin-top:25px; margin-bottom:10px; color:#00ffcc; font-size:1.1em;}
+
+/* Mobile friendly */
+@media screen and (max-width:768px){
+  table, thead, tbody, th, td, tr {display:block;}
+  thead tr {display:none;}
+  tr {margin-bottom:15px; border-bottom:2px solid #22253b;}
+  td {padding-left:50%; position:relative;}
+  td::before {
+    position:absolute; left:10px; width:45%; white-space:nowrap; font-weight:bold;
+    color:#00ffcc;
+  }
+  td:nth-of-type(1)::before {content:"Date";}
+  td:nth-of-type(2)::before {content:"Order ID";}
+  td:nth-of-type(3)::before {content:"Product";}
+  td:nth-of-type(4)::before {content:"Name";}
+  td:nth-of-type(5)::before {content:"Email";}
+  td:nth-of-type(6)::before {content:"Mobile";}
+  td:nth-of-type(7)::before {content:"Status";}
+  td:nth-of-type(8)::before {content:"Actions";}
+  .btn{padding:5px 8px; font-size:0.85em;}
+}
 </style>
 </head>
 <body>
@@ -119,7 +140,7 @@ async function loadAdminData(){
     document.getElementById("stats").textContent = `Total Buys: ${bSnap.data()?.total||0} | Visitors: ${vSnap.data()?.total||0}`;
   }
 
-  // -------- Orders Table (sorted by date desc) --------
+  // Orders Table
   const ordersCol = query(collection(db,"orders"), orderBy("time","desc"));
   onSnapshot(ordersCol, snap=>{
     const tbody = document.querySelector("#ordersTable tbody");
@@ -154,7 +175,7 @@ async function loadAdminData(){
     });
   });
 
-  // -------- Feedback Table (sorted by date desc) --------
+  // Feedback Table
   const feedbackCol = query(collection(db,"feedbacks"), orderBy("time","desc"));
   onSnapshot(feedbackCol, snap=>{
     const tbody = document.querySelector("#feedbackTable tbody");
@@ -199,7 +220,7 @@ window.deleteFeedback = async function(id){
   if(confirm("Delete this feedback?")) await deleteDoc(doc(db,"feedbacks",id));
 }
 
-// -------- Export PDF --------
+// Export PDF
 window.exportPDF = function(){
   let html="<h2>BCA Store Orders & Feedbacks</h2>";
   html+="<h3>Orders</h3>"+document.getElementById("ordersTable").outerHTML;
