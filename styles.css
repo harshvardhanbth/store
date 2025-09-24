@@ -1,0 +1,52 @@
+:root{
+  --primary:#2b3a67;
+  --accent:#ff9800;
+  --whatsapp:#25D366;
+  --card:#ffffff;
+  --bg:#f9f9fb;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{font-family:Inter, 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial; margin:0; background:var(--bg); color:#111}
+.banner{background:linear-gradient(90deg,#ff5722,#ff9800); color:#fff; text-align:center; padding:10px; font-weight:600; animation:slideIn 700ms ease-out, pulse 3s ease-in-out infinite alternate; position:sticky; top:0; z-index:20}
+@keyframes slideIn{from{transform:translateY(-110%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{from{filter:brightness(1)}to{filter:brightness(1.05)}}
+
+header{display:flex; justify-content:space-between; align-items:center; padding:14px 18px; gap:12px; background:transparent}
+.brand{display:flex; align-items:center; gap:18px}
+.brand h1{margin:0; color:var(--primary); font-size:1.4rem}
+.buy-count{background:var(--whatsapp); color:#fff; padding:8px 12px; border-radius:999px; font-weight:600; display:inline-block}
+.controls{display:flex; gap:8px; align-items:center}
+select{padding:8px 10px; border-radius:8px; border:none; background:#fff; box-shadow:0 1px 4px rgba(2,6,23,0.06)}
+.dropbtn{background:var(--accent); color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer}
+.dropdown{position:relative}
+.dropdown-content{display:none; position:absolute; right:0; top:42px; background:#fff; min-width:160px; box-shadow:0 8px 24px rgba(2,6,23,0.08); border-radius:8px; overflow:hidden}
+.dropdown:hover .dropdown-content{display:block}
+.dropdown-content a{display:block; padding:10px 14px; color:#111; text-decoration:none}
+.dropdown-content a:hover{background:#f3f4f6}
+
+.search-wrap{padding:10px 18px}
+#searchBar{width:100%; max-width:420px; padding:10px 12px; border-radius:10px; border:1px solid #e5e7eb; display:block; margin:0 auto; background:#fff}
+
+.container{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; padding:18px; max-width:1200px; margin:0 auto}
+.card{background:var(--card); border-radius:12px; padding:12px; box-shadow:0 6px 18px rgba(15,23,42,0.04); text-align:center; transition:transform .18s ease}
+.card img{width:100%; height:120px; object-fit:cover; border-radius:8px}
+.card h4{margin:8px 0 4px; font-size:1rem}
+.card p{margin:0; color:var(--muted)}
+.btn{display:inline-block; margin-top:10px; padding:8px 12px; background:var(--whatsapp); color:#fff; border-radius:8px; border:none; cursor:pointer; font-weight:700}
+.btn:hover{transform:translateY(-2px)}
+
+footer{text-align:center; padding:18px; color:var(--muted); font-size:0.9rem; margin-top:10px}
+
+/* Modal */
+.modal{display:none; position:fixed; inset:0; background:rgba(2,6,23,0.5); justify-content:center; align-items:center; z-index:100}
+.modal[aria-hidden="false"]{display:flex}
+.modal-content{background:#fff; width:92%; max-width:420px; border-radius:12px; padding:16px; position:relative}
+.close{position:absolute; right:12px; top:10px; border:none; background:transparent; font-size:22px; cursor:pointer}
+.modal-content input, .modal-content textarea{width:100%; padding:10px; margin-top:8px; border-radius:8px; border:1px solid #e5e7eb}
+
+/* responsive tweaks */
+@media (max-width:600px){
+  .brand h1{font-size:1.1rem}
+  .card img{height:100px}
+}
