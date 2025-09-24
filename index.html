@@ -14,28 +14,21 @@ header h1 { margin:0; font-size:2em; }
 nav { display:flex; justify-content:center; padding:12px; background:#fff; }
 nav select { padding:8px 12px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
 #searchBar { display:block; margin:15px auto; width:90%; max-width:350px; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
+#buyCount { text-align:center; font-weight:bold; margin:10px 0; font-size:1.05em; }
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:18px; padding:20px; }
 .card { background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:12px; text-align:center; transition:transform 0.2s; }
 .card:hover { transform:scale(1.05); }
 .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
 .btn { margin-top:10px; padding:8px 14px; background:#25D366; color:white; text-decoration:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.95em; display:inline-block; }
 .btn:hover { background:#1ebe5d; }
-#buyCount { text-align:center; font-weight:bold; margin:10px 0; font-size:1.05em; }
 footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; font-size:0.9em; color:#555; }
 footer a { margin:0 8px; cursor:pointer; color:#2b3a67; text-decoration:underline; }
-
-/* Modal */
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:999; }
 .modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:80%; overflow:auto; }
 .modal-content h3 { margin-top:0; }
 .modal-content input, .modal-content textarea { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
 .close { float:right; font-size:1.2em; cursor:pointer; }
-
-@media (max-width:600px){
-  .card img { height:100px; }
-  header h1 { font-size:1.6em; }
-  #banner { font-size:1em; }
-}
+@media (max-width:600px){ .card img { height:100px; } header h1 { font-size:1.6em; } #banner { font-size:1em; } }
 </style>
 </head>
 <body>
@@ -69,6 +62,7 @@ footer a { margin:0 8px; cursor:pointer; color:#2b3a67; text-decoration:underlin
     <input type="text" id="custName" placeholder="Your Name">
     <input type="email" id="custEmail" placeholder="Your Email">
     <input type="tel" id="custMobile" placeholder="Your Mobile">
+    <textarea id="custFeedback" placeholder="Optional Feedback"></textarea>
     <button class="btn" onclick="placeOrder()">Buy via WhatsApp</button>
   </div>
 </div>
@@ -83,7 +77,7 @@ footer a { margin:0 8px; cursor:pointer; color:#2b3a67; text-decoration:underlin
 </div>
 
 <footer>
-  <a onclick="openInfo('Feedback','You can send feedback after purchase. Editable in code.')">Feedback</a> |
+  <a onclick="openInfo('Feedback','You can submit feedback after purchase. Editable in code.')">Feedback</a> |
   <a onclick="openInfo('Terms & Conditions','Terms & Conditions editable in code. Example: No Refund Policy.')">Terms & Conditions</a> |
   <a onclick="openInfo('Contact Us','Contact: mjkbca@example.com | Phone: 9986003559')">Contact Us</a>
   <p>mjkbca © 2025</p>
@@ -91,7 +85,7 @@ footer a { margin:0 8px; cursor:pointer; color:#2b3a67; text-decoration:underlin
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Firebase Config
 const firebaseConfig = {
@@ -105,16 +99,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Products
+// Product Data
 const semesters = {
-  sem1: [{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"}],
-  sem2: [{name:"Social Engineering",price:"$8",img:"images/english.jpg"},{name:"Phishing",price:"$18",img:"images/lab.jpg"}],
+  sem1: [
+    {name:"Exam Guess", price:"$10", img:"images/cprog.jpg"},
+    {name:"Notes", price:"$12", img:"images/intro.jpg"},
+    {name:"PYQ", price:"$15", img:"images/math.jpg"}
+  ],
+  sem2: [
+    {name:"Social Engineering", price:"$8", img:"images/english.jpg"},
+    {name:"Phishing", price:"$18", img:"images/lab.jpg"}
+  ],
   sem3: [], sem4: [], sem5: [], sem6: []
 };
 
 let currentSem = "sem1";
 let selectedProduct = "";
-let buyCount = 0;
 
 const productContainer = document.getElementById("productContainer");
 const semesterSelect = document.getElementById("semesterSelect");
@@ -122,35 +122,22 @@ const searchBar = document.getElementById("searchBar");
 const buyCountEl = document.getElementById("buyCount");
 const visitorCountEl = document.getElementById("visitorCount");
 
-// Firebase refs
 const buyCountRef = doc(db,"storeInfo","buyCount");
 const visitorRef = doc(db,"storeInfo","visitorCount");
 
-// Load visitor count
-async function loadVisitorCount(){
-  const docSnap = await getDoc(visitorRef);
-  if(docSnap.exists()){
-    let count = docSnap.data().total+1;
-    visitorCountEl.textContent = "Visitors: "+count;
-    await updateDoc(visitorRef,{total:count});
-  } else {
-    await setDoc(visitorRef,{total:1});
-    visitorCountEl.textContent = "Visitors: 1";
-  }
-}
+// Initialize visitor & buy count
+async function initCounts(){
+  // Visitor
+  const visitorSnap = await getDoc(visitorRef);
+  let vCount = 1;
+  if(visitorSnap.exists()){ vCount = visitorSnap.data().total+1; await updateDoc(visitorRef,{total: vCount}); }
+  else{ await setDoc(visitorRef,{total:1}); }
+  visitorCountEl.textContent = "Visitors: "+vCount;
 
-// Load buy count
-async function loadBuyCount(){
-  const docSnap = await getDoc(buyCountRef);
-  if(docSnap.exists()){ buyCount = docSnap.data().total; buyCountEl.textContent = "Total Buys: "+buyCount; }
-  else { await setDoc(buyCountRef,{total:0}); buyCountEl.textContent="Total Buys: 0"; }
-}
-
-async function updateBuyCount(){
-  await updateDoc(buyCountRef,{total:increment(1)});
-  const docSnap = await getDoc(buyCountRef);
-  buyCount = docSnap.data().total;
-  buyCountEl.textContent = "Total Buys: "+buyCount;
+  // Buy
+  const buySnap = await getDoc(buyCountRef);
+  if(buySnap.exists()){ buyCountEl.textContent = "Total Buys: "+buySnap.data().total; }
+  else{ await setDoc(buyCountRef,{total:0}); buyCountEl.textContent = "Total Buys: 0"; }
 }
 
 // Display products
@@ -182,14 +169,39 @@ searchBar.addEventListener("keyup", ()=>{
 // Modal functions
 window.openModal=function(name,price){ selectedProduct=name+" - "+price; document.getElementById("formModal").style.display="flex"; }
 window.closeModal=function(){ document.getElementById("formModal").style.display="none"; }
-
-// Footer info modal
 window.openInfo=function(title,content){ document.getElementById("infoTitle").textContent=title; document.getElementById("infoContent").innerHTML=content; document.getElementById("infoModal").style.display="flex"; }
 window.closeInfoModal=function(){ document.getElementById("infoModal").style.display="none"; }
 
-// Place order
+// Place Order
 window.placeOrder=async function(){
   const name=document.getElementById("custName").value;
   const email=document.getElementById("custEmail").value;
   const mobile=document.getElementById("custMobile").value;
-  if(!name || !
+  const feedback=document.getElementById("custFeedback").value;
+  if(!name || !mobile){ alert("Name & Mobile required"); return; }
+
+  // WhatsApp link
+  const msg=`New Order from BCA Store%0AProduct: ${selectedProduct}%0AName: ${name}%0AEmail: ${email}%0AMobile: ${mobile}%0AFeedback: ${feedback}`;
+  window.open(`https://wa.me/918986003559?text=${msg}`,'_blank');
+
+  // Update buy count
+  await updateDoc(buyCountRef,{total:increment(1)});
+  const buySnap = await getDoc(buyCountRef);
+  buyCountEl.textContent="Total Buys: "+buySnap.data().total;
+
+  // Store feedback
+  await addDoc(collection(db,"feedbacks"),{
+    product: selectedProduct,
+    name, email, mobile, feedback,
+    time: serverTimestamp()
+  });
+
+  closeModal();
+}
+
+// Initial load
+initCounts();
+displayProducts(currentSem);
+</script>
+</body>
+</html>
