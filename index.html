@@ -84,7 +84,7 @@ footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; f
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDoc, setDoc, updateDoc, increment, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Firebase Config
 const firebaseConfig = {
@@ -100,10 +100,9 @@ const db = getFirestore(app);
 
 // Products
 const semesters = {
-  sem1: [{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"}],
-  sem2: [{name:"Source Code",price:"$14",img:"images/digital.jpg"},{name:"Ethical Hacking",price:"$9",img:"images/it.jpg"}],
-  sem3: [{name:"Linux",price:"$20",img:"images/problem.jpg"}],
-  sem4:[],sem5:[],sem6:[]
+  sem1: [{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"},{name:"Source Code",price:"$14",img:"images/digital.jpg"},{name:"Ethical Hacking",price:"$9",img:"images/it.jpg"}],
+  sem2: [{name:"Social Engineering",price:"$8",img:"images/english.jpg"},{name:"Phishing",price:"$18",img:"images/lab.jpg"},{name:"Linux",price:"$20",img:"images/problem.jpg"}],
+  sem3: [], sem4: [], sem5: [], sem6: []
 };
 
 let currentSem = "sem1";
@@ -121,7 +120,7 @@ const buyCountRef = doc(db,"storeInfo","buyCount");
 async function loadBuyCount(){
   const docSnap = await getDoc(buyCountRef);
   if(docSnap.exists()){ buyCount = docSnap.data().total; buyCountEl.textContent = "Total Buys: "+buyCount; }
-  else { await setDoc(buyCountRef,{total:0}); buyCountEl.textContent="Total Buys: 0"; }
+  else { await updateDoc(buyCountRef,{total:0}).catch(async()=>{ await setDoc(buyCountRef,{total:0}); }); buyCountEl.textContent="Total Buys: 0"; }
 }
 
 async function updateBuyCount(){
