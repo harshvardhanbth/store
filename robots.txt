@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /harshlogin.html/
+Allow: /
+Sitemap: https://store.mjkbca.online/sitemap.xml
