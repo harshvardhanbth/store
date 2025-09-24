@@ -10,21 +10,16 @@ body { font-family:'Roboto',sans-serif; margin:0; padding:0; background:#f4f6fc;
 header { background:#2b3a67; color:white; padding:15px 20px; text-align:center; }
 header h1 { margin:0; font-size:2em; }
 #banner { background:#ff5722; color:#fff; text-align:center; font-weight:bold; padding:12px; font-size:1.1em; }
-
 nav { display:flex; justify-content:center; padding:12px; background:#fff; }
 nav select { padding:8px 12px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
-
 #searchBar { display:block; margin:15px auto; width:90%; max-width:350px; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
-
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:18px; padding:20px; }
 .card { background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:12px; text-align:center; transition:transform 0.2s; }
 .card:hover { transform:scale(1.05); }
 .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
 .btn { margin-top:10px; padding:8px 14px; background:#25D366; color:white; text-decoration:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.95em; display:inline-block; }
 .btn:hover { background:#1ebe5d; }
-
 #buyCount { text-align:center; font-weight:bold; margin:10px 0; font-size:1.05em; }
-
 footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; font-size:0.9em; color:#555; }
 
 /* Modal */
@@ -33,10 +28,6 @@ footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; f
 .modal-content h3 { margin-top:0; }
 .modal-content input, .modal-content textarea { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
 .close { float:right; font-size:1.2em; cursor:pointer; }
-
-/* Admin Panel */
-#adminLogin, #adminPanel { display:none; margin:20px; padding:20px; border-radius:10px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-#adminPanel h2 { margin-top:0; }
 
 @media (max-width:600px){
   .card img { height:100px; }
@@ -89,19 +80,6 @@ footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; f
   </div>
 </div>
 
-<!-- Hidden Admin -->
-<div id="adminLogin">
-  <h2>Admin Login</h2>
-  <input type="password" id="adminPass" placeholder="Enter Password">
-  <button onclick="checkAdmin()">Login</button>
-</div>
-
-<div id="adminPanel">
-  <h2>Admin Panel</h2>
-  <div id="allOrders"></div>
-  <div id="allFeedbacks"></div>
-</div>
-
 <footer>mjkbca © 2025</footer>
 
 <script type="module">
@@ -122,47 +100,32 @@ const db = getFirestore(app);
 
 // Products
 const semesters = {
-  sem1: [
-    { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
-    { name: "Notes", price: "$12", img: "images/intro.jpg" },
-    { name: "PYQ", price: "$15", img: "images/math.jpg" }
-  ],
-  sem2: [
-    { name: "Source Code", price: "$14", img: "images/digital.jpg" },
-    { name: "Ethical Hacking", price: "$9", img: "images/it.jpg" }
-  ],
-  sem3: [
-    { name: "Linux", price: "$20", img: "images/problem.jpg" }
-  ],
-  sem4:[], sem5:[], sem6:[]
+  sem1: [{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"}],
+  sem2: [{name:"Source Code",price:"$14",img:"images/digital.jpg"},{name:"Ethical Hacking",price:"$9",img:"images/it.jpg"}],
+  sem3: [{name:"Linux",price:"$20",img:"images/problem.jpg"}],
+  sem4:[],sem5:[],sem6:[]
 };
 
 let currentSem = "sem1";
 let selectedProduct = "";
 let buyCount = 0;
+
 const productContainer = document.getElementById("productContainer");
 const semesterSelect = document.getElementById("semesterSelect");
 const searchBar = document.getElementById("searchBar");
 const buyCountEl = document.getElementById("buyCount");
 
-// Firebase buy count doc
-const buyCountRef = doc(db, "storeInfo", "buyCount");
+// Firebase buy count
+const buyCountRef = doc(db,"storeInfo","buyCount");
 
-// Load buy count
 async function loadBuyCount(){
   const docSnap = await getDoc(buyCountRef);
-  if(docSnap.exists()){
-    buyCount = docSnap.data().total;
-    buyCountEl.textContent = "Total Buys: "+buyCount;
-  } else {
-    await setDoc(buyCountRef,{ total:0 });
-    buyCountEl.textContent = "Total Buys: 0";
-  }
+  if(docSnap.exists()){ buyCount = docSnap.data().total; buyCountEl.textContent = "Total Buys: "+buyCount; }
+  else { await setDoc(buyCountRef,{total:0}); buyCountEl.textContent="Total Buys: 0"; }
 }
 
-// Update buy count
 async function updateBuyCount(){
-  await updateDoc(buyCountRef,{ total: increment(1) });
+  await updateDoc(buyCountRef,{total:increment(1)});
   const docSnap = await getDoc(buyCountRef);
   buyCount = docSnap.data().total;
   buyCountEl.textContent = "Total Buys: "+buyCount;
@@ -174,73 +137,61 @@ function displayProducts(sem){
   semesters[sem].forEach(p=>{
     const div=document.createElement("div");
     div.className="card";
-    div.innerHTML=`
-      <img src="${p.img}">
-      <h4>${p.name}</h4>
-      <p>${p.price}</p>
+    div.innerHTML=`<img src="${p.img}"><h4>${p.name}</h4><p>${p.price}</p>
       <button class='btn' onclick="openModal('${p.name}','${p.price}')">Buy via WhatsApp</button>`;
     productContainer.appendChild(div);
   });
 }
 
-// Event listeners
-semesterSelect.addEventListener("change", e=>{
-  currentSem=e.target.value;
-  displayProducts(currentSem);
-});
+// Events
+semesterSelect.addEventListener("change", e=>{ currentSem=e.target.value; displayProducts(currentSem); });
 searchBar.addEventListener("keyup", ()=>{
-  const query = searchBar.value.toLowerCase();
+  const query=searchBar.value.toLowerCase();
   productContainer.innerHTML="";
   semesters[currentSem].filter(p=>p.name.toLowerCase().includes(query)).forEach(p=>{
     const div=document.createElement("div");
     div.className="card";
-    div.innerHTML=`
-      <img src="${p.img}">
-      <h4>${p.name}</h4>
-      <p>${p.price}</p>
+    div.innerHTML=`<img src="${p.img}"><h4>${p.name}</h4><p>${p.price}</p>
       <button class='btn' onclick="openModal('${p.name}','${p.price}')">Buy via WhatsApp</button>`;
     productContainer.appendChild(div);
   });
 });
 
 // Modal functions
-window.openModal=function(name,price){
-  selectedProduct=`${name} - ${price}`;
-  document.getElementById("formModal").style.display="flex";
-}
+window.openModal=function(name,price){ selectedProduct=name+" - "+price; document.getElementById("formModal").style.display="flex"; }
 window.closeModal=function(){ document.getElementById("formModal").style.display="none"; }
 window.closeFeedback=function(){ document.getElementById("feedbackModal").style.display="none"; }
 
-// Place Order
+// Place order
 window.placeOrder=async function(){
   const name=document.getElementById("custName").value;
   const email=document.getElementById("custEmail").value;
   const mobile=document.getElementById("custMobile").value;
+  if(!name || !mobile){ alert("Enter name & mobile"); return; }
 
-  if(!name || !mobile){ alert("Please enter name and mobile."); return; }
-
-  await addDoc(collection(db,"orders"),{ product:selectedProduct, name, email, mobile, time:new Date() });
+  await addDoc(collection(db,"orders"),{product:selectedProduct,name,email,mobile,time:new Date()});
   await updateBuyCount();
 
-  const msg = `Hello! I want to buy:\nProduct: ${selectedProduct}\nName: ${name}\nEmail: ${email}\nMobile: ${mobile}`;
+  const msg=`New Order from BCA Store\nProduct: ${selectedProduct}\nName: ${name}\nEmail: ${email}\nMobile: ${mobile}`;
   window.open(`https://wa.me/918986003559?text=${encodeURIComponent(msg)}`,"_blank");
 
   closeModal();
   document.getElementById("feedbackModal").style.display="flex";
 }
 
-// Submit Feedback
+// Submit feedback
 window.submitFeedback=async function(){
   const feedback=document.getElementById("custFeedback").value;
-  if(!feedback){ alert("Please write feedback."); return; }
-  await addDoc(collection(db,"feedbacks"),{ product:selectedProduct, feedback, time:new Date() });
+  if(!feedback){ alert("Write feedback"); return; }
+  await addDoc(collection(db,"feedbacks"),{product:selectedProduct,feedback,time:new Date()});
   closeFeedback();
-  alert("✅ Thank you for your feedback!");
+  alert("✅ Thank you for feedback!");
 }
 
 // Initialize
 displayProducts(currentSem);
 loadBuyCount();
+
 </script>
 </body>
 </html>
