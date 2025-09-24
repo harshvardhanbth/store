@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCA Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; margin:0; padding:0; background:#f4f6fc; color:#333; }
+    header { background:#2b3a67; color:white; padding:15px 20px; text-align:center; }
+    header h1 { margin:0; font-size:2em; }
+    #banner { background:#ff5722; color:#fff; text-align:center; font-weight:bold; padding:12px; font-size:1.1em; }
+
+    nav { display:flex; justify-content:center; padding:12px; background:#fff; }
+    nav select { padding:8px 12px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
+
+    #searchBar { display:block; margin:15px auto; width:90%; max-width:350px; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
+
+    .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:18px; padding:20px; }
+    .card { background:#fff; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); padding:12px; text-align:center; transition:transform 0.2s; }
+    .card:hover { transform:scale(1.05); }
+    .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
+    .btn { margin-top:10px; padding:8px 14px; background:#25D366; color:white; text-decoration:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.95em; display:inline-block; }
+    .btn:hover { background:#1ebe5d; }
+
+    #buyCount { text-align:center; font-weight:bold; margin:10px 0; font-size:1.05em; }
+
+    footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; font-size:0.9em; color:#555; }
+
+    /* Modal */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:999; }
+    .modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; }
+    .modal-content h3 { margin-top:0; }
+    .modal-content input, .modal-content textarea { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
+    .close { float:right; font-size:1.2em; cursor:pointer; }
+
+    /* Admin Panel */
+    #adminLogin, #adminPanel { display:none; margin:20px; padding:20px; border-radius:10px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+    #adminPanel h2 { margin-top:0; }
+
+    @media (max-width:600px){
+      .card img { height:100px; }
+      header h1 { font-size:1.6em; }
+      #banner { font-size:1em; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>BCA Store</h1>
+    <div id="banner">🔥 Big Sale Today – Flat 50% Off! 🔥</div>
+  </header>
+
+  <nav>
+    <select id="semesterSelect">
+      <option value="sem1">Sem 1</option>
+      <option value="sem2">Sem 2</option>
+      <option value="sem3">Sem 3</option>
+      <option value="sem4">Sem 4</option>
+      <option value="sem5">Sem 5</option>
+      <option value="sem6">Sem 6</option>
+    </select>
+  </nav>
+
+  <input type="text" id="searchBar" placeholder="Search products...">
+
+  <div id="buyCount">Total Buys: 0</div>
+
+  <div id="productContainer" class="container"></div>
+
+  <!-- Buy Modal -->
+  <div id="formModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Enter Your Details</h3>
+      <input type="text" id="custName" placeholder="Your Name">
+      <input type="email" id="custEmail" placeholder="Your Email">
+      <input type="tel" id="custMobile" placeholder="Your Mobile">
+      <button class="btn" onclick="placeOrder()">Buy</button>
+    </div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="feedbackModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeFeedback()">&times;</span>
+      <h3>Your Feedback</h3>
+      <textarea id="custFeedback" placeholder="Write your feedback..."></textarea>
+      <button class="btn" onclick="submitFeedback()">Submit</button>
+    </div>
+  </div>
+
+  <!-- Admin Login (Hidden) -->
+  <div id="adminLogin">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Enter Password">
+    <button onclick="checkAdmin()">Login</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel">
+    <h2>Admin Panel</h2>
+    <div id="allOrders"></div>
+    <div id="allFeedbacks"></div>
+  </div>
+
+  <footer>
+    <p>mjkbca © 2025</p>
+  </footer>
+
+  <!-- Firebase & Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ---------------- FIREBASE CONFIG ----------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBV_jXIewP2OfcqYxtj2regQCicduc2fY",
+      authDomain: "ount-32a16.firebaseapp.com",
+      projectId: "ount-32a16",
+      storageBucket: "ount-32a16.firebasestorage.app",
+      messagingSenderId: "865150215832",
+      appId: "1:865150215832:web:d6ab92c351584c71aa12ed"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ---------------- PRODUCTS ----------------
+    const semesters = {
+      sem1: [
+        { name: "Exam Guess", price: "$10", img: "images/cprog.jpg" },
+        { name: "Notes", price: "$12", img: "images/intro.jpg" },
+        { name: "PYQ", price: "$15", img: "images/math.jpg" }
+      ],
+      sem2: [
+        { name: "Source Code", price: "$14", img: "images/digital.jpg" },
+        { name: "Ethical Hacking Basic", price: "$9", img: "images/it.jpg" }
+      ],
+      sem3: [
+        { name: "Linux", price: "$20", img: "images/problem.jpg" }
+      ],
+      sem4: [], sem5: [], sem6: []
+    };
+
+    let currentSem = "sem1";
+    let selectedProduct = "";
+    let buyCount = 0;
+
+    const productContainer = document.getElementById("productContainer");
+    const semesterSelect = document.getElementById("semesterSelect");
+    const searchBar = document.getElementById("searchBar");
+    const buyCountEl = document.getElementById("buyCount");
+
+    function displayProducts(sem){
+      productContainer.innerHTML = "";
+      semesters[sem].forEach(p => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <img src="${p.img}">
+          <h4>${p.name}</h4>
+          <p>${p.price}</p>
+          <button class='btn' onclick="openModal('${p.name}', '${p.price}')">Buy</button>`;
+        productContainer.appendChild(div);
+      });
+    }
+
+    semesterSelect.addEventListener("change", e=>{
+      currentSem = e.target.value;
+      displayProducts(currentSem);
+    });
+
+    searchBar.addEventListener("keyup", ()=>{
+      const query = searchBar.value.toLowerCase();
+      productContainer.innerHTML = "";
+      semesters[currentSem].filter(p=>p.name.toLowerCase().includes(query)).forEach(p=>{
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <img src="${p.img}">
+          <h4>${p.name}</h4>
+          <p>${p.price}</p>
+          <button class='btn' onclick="openModal('${p.name}', '${p.price}')">Buy</button>`;
+        productContainer.appendChild(div);
+      });
+    });
+
+    window.openModal = function(name, price){
+      selectedProduct = `${name} - ${price}`;
+      document.getElementById("formModal").style.display = "flex";
+    }
+    window.closeModal = function(){ document.getElementById("formModal").style.display = "none"; }
+    window.closeFeedback = function(){ document.getElementById("feedbackModal").style.display = "none"; }
+
+    window.placeOrder = async function(){
+      const name = document.getElementById("custName").value;
+      const email = document.getElementById("custEmail").value;
+      const mobile = document.getElementById("custMobile").value;
+      await addDoc(collection(db, "orders"), { product: selectedProduct, name, email, mobile, time: new Date() });
+      buyCount++;
+      buyCountEl.textContent = "Total Buys: " + buyCount;
+      closeModal();
+      document.getElementById("feedbackModal").style.display="flex";
+    }
+
+    window.submitFeedback = async function(){
+      const feedback = document.getElementById("custFeedback").value;
+      await addDoc(collection(db, "feedbacks"), { product: selectedProduct, feedback, time: new Date() });
+      closeFeedback();
+      alert("Thanks for your feedback!");
+    }
+
+    // ---------------- ADMIN ----------------
+    document.addEventListener("keydown", e=>{
+      if(e.ctrlKey && e.shiftKey && e.code==="KeyA"){
+        document.getElementById("adminLogin").style.display="block";
+      }
+    });
+
+    window.checkAdmin = async function(){
+      const pass = document.getElementById("adminPass").value;
+      if(pass === "Admin@123"){
+        document.getElementById("adminLogin").style.display="none";
+        document.getElementById("adminPanel").style.display="block";
+
+        const ordersSnap = await getDocs(collection(db,"orders"));
+        let ordersHtml="<h3>Orders</h3><ul>";
+        ordersSnap.forEach(doc=>{ let d=doc.data(); ordersHtml+=`<li>${d.product} - ${d.name} (${d.email})</li>`; });
+        ordersHtml+="</ul>"; document.getElementById("allOrders").innerHTML=ordersHtml;
+
+        const feedbackSnap = await getDocs(collection(db,"feedbacks"));
+        let feedbackHtml="<h3>Feedbacks</h3><ul>";
+        feedbackSnap.forEach(doc=>{ let d=doc.data(); feedbackHtml+=`<li>${d.product} - ${d.feedback}</li>`; });
+        feedbackHtml+="</ul>"; document.getElementById("allFeedbacks").innerHTML=feedbackHtml;
+
+      } else { alert("Wrong password!"); }
+    }
+
+    displayProducts(currentSem);
+  </script>
+
+</body>
+</html>
