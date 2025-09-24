@@ -4,61 +4,65 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel - BCA Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body {font-family: monospace; margin:0; padding:0; background:#0f111a; color:#cfd8dc;}
+body {font-family:'Fira Code', monospace; margin:0; padding:0; background:#0f111a; color:#cfd8dc;}
 header {background:#1f2233; padding:20px; text-align:center; color:#00ffcc;}
-h1,h2{margin:0;}
+h1,h2,h3{margin:0;}
 .container{padding:20px;}
 table{width:100%; border-collapse:collapse; margin:15px 0;}
-th,td{border:1px solid #22253b; padding:8px; text-align:left;}
+th,td{border:1px solid #22253b; padding:10px; text-align:left;}
 th{background:#22253b;color:#00ffcc;}
 tr:nth-child(even){background:#1a1c2b;}
-.btn{background:#00ffcc;color:#0f111a;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px;}
+.btn{background:#00ffcc;color:#0f111a;padding:6px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px;transition:0.2s;}
 .btn:hover{background:#00d6b2;}
 select{padding:5px;border-radius:6px;border:none;background:#22253b;color:#cfd8dc;}
 input[type=password]{padding:10px;border-radius:6px;border:none;margin-top:15px;width:100%;max-width:250px;}
 #loginSection{text-align:center;margin-top:100px;}
 .stats{margin-top:10px;font-weight:bold;}
+.sectionTitle{margin-top:25px; margin-bottom:10px; color:#00ffcc; font-size:1.2em;}
 </style>
 </head>
 <body>
 
 <div id="loginSection">
-<h1>Admin Login</h1>
-<input type="password" id="adminPass" placeholder="Enter Password">
-<button class="btn" onclick="checkLogin()">Login</button>
+  <h1>Admin Login</h1>
+  <input type="password" id="adminPass" placeholder="Enter Password">
+  <button class="btn" onclick="checkLogin()">Login</button>
 </div>
 
 <div id="adminPanel" style="display:none;">
-<header>
-<h1>Admin Panel - BCA Store</h1>
-<p class="stats" id="stats">Loading stats...</p>
-</header>
+  <header>
+    <h1>Admin Panel - BCA Store</h1>
+    <p class="stats" id="stats">Loading stats...</p>
+  </header>
 
-<div class="container">
-<h2>Orders</h2>
-<table id="ordersTable">
-<thead>
-<tr><th>Order ID</th><th>Product</th><th>Name</th><th>Email</th><th>Mobile</th><th>Status</th><th>Actions</th></tr>
-</thead>
-<tbody></tbody>
-</table>
+  <div class="container">
+    <h2 class="sectionTitle">Orders</h2>
+    <table id="ordersTable">
+      <thead>
+        <tr><th>Order ID</th><th>Product</th><th>Name</th><th>Email</th><th>Mobile</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-<h2>Feedbacks</h2>
-<table id="feedbackTable">
-<thead>
-<tr><th>Order ID</th><th>Product</th><th>Feedback</th><th>Date</th><th>Actions</th></tr>
-</thead>
-<tbody></tbody>
-</table>
+    <h2 class="sectionTitle">Feedbacks</h2>
+    <table id="feedbackTable">
+      <thead>
+        <tr><th>Order ID</th><th>Product</th><th>Feedback</th><th>Date</th><th>Actions</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-<button class="btn" onclick="exportPDF()">Export All to PDF</button>
-</div>
+    <button class="btn" onclick="exportPDF()">Export All to PDF</button>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { 
+  getFirestore, collection, doc, updateDoc, deleteDoc, onSnapshot 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBV_jXIewP2OfcqYxtj2regQCicduc2fY",
@@ -73,7 +77,7 @@ const db = getFirestore(app);
 
 const adminPassword = "Harsh@123";
 
-// --- Login ---
+// -------- Login --------
 window.checkLogin = function(){
   const pass = document.getElementById("adminPass").value;
   if(pass === adminPassword){
@@ -85,7 +89,7 @@ window.checkLogin = function(){
   }
 }
 
-// --- Load Orders, Feedbacks, Stats ---
+// -------- Load Admin Data --------
 async function loadAdminData(){
   const buyCountRef = doc(db,"storeInfo","buyCount");
   const visitorRef = doc(db,"storeInfo","visitorCount");
@@ -94,19 +98,17 @@ async function loadAdminData(){
   onSnapshot(buyCountRef, snap=>updateStats());
   onSnapshot(visitorRef, snap=>updateStats());
 
-  function updateStats(){
-    buyCountRef.get().then(bsnap=>{
-      visitorRef.get().then(vsnap=>{
-        document.getElementById("stats").textContent = `Total Buys: ${bsnap.data()?.total||0} | Visitors: ${vsnap.data()?.total||0}`;
-      });
-    });
+  async function updateStats(){
+    const bSnap = await buyCountRef.get();
+    const vSnap = await visitorRef.get();
+    document.getElementById("stats").textContent = `Total Buys: ${bSnap.data()?.total||0} | Visitors: ${vSnap.data()?.total||0}`;
   }
 
-  // Orders Table
+  // -------- Orders Table --------
   const ordersCol = collection(db,"orders");
   onSnapshot(ordersCol, snap=>{
-    const ordersTbody = document.querySelector("#ordersTable tbody");
-    ordersTbody.innerHTML = "";
+    const tbody = document.querySelector("#ordersTable tbody");
+    tbody.innerHTML = "";
     snap.forEach(d=>{
       const data = d.data();
       const row = document.createElement("tr");
@@ -129,15 +131,15 @@ async function loadAdminData(){
           <button class="btn" onclick="deleteOrder('${d.id}')">Delete</button>
         </td>
       `;
-      ordersTbody.appendChild(row);
+      tbody.appendChild(row);
     });
   });
 
-  // Feedback Table
+  // -------- Feedback Table --------
   const feedbackCol = collection(db,"feedbacks");
   onSnapshot(feedbackCol, snap=>{
-    const feedbackTbody = document.querySelector("#feedbackTable tbody");
-    feedbackTbody.innerHTML = "";
+    const tbody = document.querySelector("#feedbackTable tbody");
+    tbody.innerHTML = "";
     snap.forEach(d=>{
       const data = d.data();
       const date = data.time?.toDate()?.toLocaleString()||"";
@@ -151,31 +153,35 @@ async function loadAdminData(){
           <button class="btn" onclick="deleteFeedback('${d.id}')">Delete</button>
         </td>
       `;
-      feedbackTbody.appendChild(row);
+      tbody.appendChild(row);
     });
   });
 }
 
-// --- Admin Actions ---
+// -------- Admin Actions --------
 window.updateStatus = async function(id){
   const sel = document.getElementById("status_"+id);
   await updateDoc(doc(db,"orders",id),{status: sel.value});
-  alert("Order Status Updated!");
+  alert("Order Status Updated! (Live on user site)");
 }
 
 window.deleteOrder = async function(id){
   if(confirm("Delete this order?")) await deleteDoc(doc(db,"orders",id));
 }
+
 window.deleteFeedback = async function(id){
   if(confirm("Delete this feedback?")) await deleteDoc(doc(db,"feedbacks",id));
 }
 
-// --- Export PDF ---
+// -------- Export PDF --------
 window.exportPDF = function(){
   let html="<h2>BCA Store Orders & Feedbacks</h2>";
   html+="<h3>Orders</h3>"+document.getElementById("ordersTable").outerHTML;
   html+="<h3>Feedbacks</h3>"+document.getElementById("feedbackTable").outerHTML;
-  const w=window.open("","Print"); w.document.write(html); w.document.close(); w.print();
+  const w=window.open("","Print");
+  w.document.write(html);
+  w.document.close();
+  w.print();
 }
 </script>
 </body>
