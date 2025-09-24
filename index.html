@@ -7,9 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 body { font-family:'Roboto',sans-serif; margin:0; padding:0; background:#f4f6fc; color:#333; }
-header { background:#2b3a67; color:white; padding:15px 20px; text-align:center; }
+header { background:#2b3a67; color:white; padding:15px 20px; text-align:center; position:relative; }
 header h1 { margin:0; font-size:2em; }
 #banner { background:#ff5722; color:#fff; text-align:center; font-weight:bold; padding:12px; font-size:1.1em; }
+#visitorCount { position:absolute; top:15px; right:20px; font-size:0.9em; background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:6px; }
 nav { display:flex; justify-content:center; padding:12px; background:#fff; }
 nav select { padding:8px 12px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
 #searchBar { display:block; margin:15px auto; width:90%; max-width:350px; padding:10px; border-radius:6px; border:1px solid #ccc; font-size:1em; }
@@ -21,10 +22,11 @@ nav select { padding:8px 12px; border-radius:6px; border:1px solid #ccc; font-si
 .btn:hover { background:#1ebe5d; }
 #buyCount { text-align:center; font-weight:bold; margin:10px 0; font-size:1.05em; }
 footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; font-size:0.9em; color:#555; }
+footer a { margin:0 8px; cursor:pointer; color:#2b3a67; text-decoration:underline; }
 
 /* Modal */
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:999; }
-.modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; }
+.modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:80%; overflow:auto; }
 .modal-content h3 { margin-top:0; }
 .modal-content input, .modal-content textarea { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
 .close { float:right; font-size:1.2em; cursor:pointer; }
@@ -41,6 +43,7 @@ footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; f
 <header>
   <h1>BCA Store</h1>
   <div id="banner">🔥 Big Sale Today – Flat 50% Off! 🔥</div>
+  <div id="visitorCount">Visitors: 0</div>
 </header>
 
 <nav>
@@ -70,21 +73,25 @@ footer { text-align:center; padding:15px; background:#f1f1f1; margin-top:20px; f
   </div>
 </div>
 
-<!-- Feedback Modal -->
-<div id="feedbackModal" class="modal">
+<!-- Footer Info Modal -->
+<div id="infoModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeFeedback()">&times;</span>
-    <h3>Your Feedback</h3>
-    <textarea id="custFeedback" placeholder="Write your feedback..."></textarea>
-    <button class="btn" onclick="submitFeedback()">Submit</button>
+    <span class="close" onclick="closeInfoModal()">&times;</span>
+    <h3 id="infoTitle"></h3>
+    <div id="infoContent"></div>
   </div>
 </div>
 
-<footer>mjkbca © 2025</footer>
+<footer>
+  <a onclick="openInfo('Feedback','You can send feedback after purchase. Editable in code.')">Feedback</a> |
+  <a onclick="openInfo('Terms & Conditions','Terms & Conditions editable in code. Example: No Refund Policy.')">Terms & Conditions</a> |
+  <a onclick="openInfo('Contact Us','Contact: mjkbca@example.com | Phone: 9986003559')">Contact Us</a>
+  <p>mjkbca © 2025</p>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // Firebase Config
 const firebaseConfig = {
@@ -100,8 +107,8 @@ const db = getFirestore(app);
 
 // Products
 const semesters = {
-  sem1: [{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"},{name:"Source Code",price:"$14",img:"images/digital.jpg"},{name:"Ethical Hacking",price:"$9",img:"images/it.jpg"}],
-  sem2: [{name:"Social Engineering",price:"$8",img:"images/english.jpg"},{name:"Phishing",price:"$18",img:"images/lab.jpg"},{name:"Linux",price:"$20",img:"images/problem.jpg"}],
+  sem1: [{name:"Exam Guess",price:"$10",img:"images/cprog.jpg"},{name:"Notes",price:"$12",img:"images/intro.jpg"},{name:"PYQ",price:"$15",img:"images/math.jpg"}],
+  sem2: [{name:"Social Engineering",price:"$8",img:"images/english.jpg"},{name:"Phishing",price:"$18",img:"images/lab.jpg"}],
   sem3: [], sem4: [], sem5: [], sem6: []
 };
 
@@ -113,14 +120,30 @@ const productContainer = document.getElementById("productContainer");
 const semesterSelect = document.getElementById("semesterSelect");
 const searchBar = document.getElementById("searchBar");
 const buyCountEl = document.getElementById("buyCount");
+const visitorCountEl = document.getElementById("visitorCount");
 
-// Firebase buy count
+// Firebase refs
 const buyCountRef = doc(db,"storeInfo","buyCount");
+const visitorRef = doc(db,"storeInfo","visitorCount");
 
+// Load visitor count
+async function loadVisitorCount(){
+  const docSnap = await getDoc(visitorRef);
+  if(docSnap.exists()){
+    let count = docSnap.data().total+1;
+    visitorCountEl.textContent = "Visitors: "+count;
+    await updateDoc(visitorRef,{total:count});
+  } else {
+    await setDoc(visitorRef,{total:1});
+    visitorCountEl.textContent = "Visitors: 1";
+  }
+}
+
+// Load buy count
 async function loadBuyCount(){
   const docSnap = await getDoc(buyCountRef);
   if(docSnap.exists()){ buyCount = docSnap.data().total; buyCountEl.textContent = "Total Buys: "+buyCount; }
-  else { await updateDoc(buyCountRef,{total:0}).catch(async()=>{ await setDoc(buyCountRef,{total:0}); }); buyCountEl.textContent="Total Buys: 0"; }
+  else { await setDoc(buyCountRef,{total:0}); buyCountEl.textContent="Total Buys: 0"; }
 }
 
 async function updateBuyCount(){
@@ -159,38 +182,14 @@ searchBar.addEventListener("keyup", ()=>{
 // Modal functions
 window.openModal=function(name,price){ selectedProduct=name+" - "+price; document.getElementById("formModal").style.display="flex"; }
 window.closeModal=function(){ document.getElementById("formModal").style.display="none"; }
-window.closeFeedback=function(){ document.getElementById("feedbackModal").style.display="none"; }
+
+// Footer info modal
+window.openInfo=function(title,content){ document.getElementById("infoTitle").textContent=title; document.getElementById("infoContent").innerHTML=content; document.getElementById("infoModal").style.display="flex"; }
+window.closeInfoModal=function(){ document.getElementById("infoModal").style.display="none"; }
 
 // Place order
 window.placeOrder=async function(){
   const name=document.getElementById("custName").value;
   const email=document.getElementById("custEmail").value;
   const mobile=document.getElementById("custMobile").value;
-  if(!name || !mobile){ alert("Enter name & mobile"); return; }
-
-  await addDoc(collection(db,"orders"),{product:selectedProduct,name,email,mobile,time:new Date()});
-  await updateBuyCount();
-
-  const msg=`New Order from BCA Store\nProduct: ${selectedProduct}\nName: ${name}\nEmail: ${email}\nMobile: ${mobile}`;
-  window.open(`https://wa.me/918986003559?text=${encodeURIComponent(msg)}`,"_blank");
-
-  closeModal();
-  document.getElementById("feedbackModal").style.display="flex";
-}
-
-// Submit feedback
-window.submitFeedback=async function(){
-  const feedback=document.getElementById("custFeedback").value;
-  if(!feedback){ alert("Write feedback"); return; }
-  await addDoc(collection(db,"feedbacks"),{product:selectedProduct,feedback,time:new Date()});
-  closeFeedback();
-  alert("✅ Thank you for feedback!");
-}
-
-// Initialize
-displayProducts(currentSem);
-loadBuyCount();
-
-</script>
-</body>
-</html>
+  if(!name || !
